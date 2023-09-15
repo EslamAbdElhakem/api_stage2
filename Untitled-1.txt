@@ -3,3 +3,77 @@ TodoItem.cs >stageItem
 TodoApi > api-stage2
 TodoList
 TodoItemsController > stageItemController
+
+stageItem > Person
+TodoItems > Persons
+
+
+namespace YourNamespace
+{
+    [ApiController]
+    [Route("api/persons")]
+    public class PersonsController : ControllerBase
+    {
+        private readonly stageContext _context;
+
+        public PersonsController(stageContext context)
+        {
+            _context = context;
+        }
+
+        [HttpPost]
+        public IActionResult CreatePerson(PersonDto personDto)
+        {
+            // Extract the relevant information
+            string name = personDto.Name;
+            int age = personDto.Age;
+
+            // Perform some validation on the data (optional)
+            if (string.IsNullOrEmpty(name) || age <= 0)
+            {
+                return BadRequest("Name and age are required fields.");
+            }
+
+            // Create a new person object
+            Person person = new Person
+            {
+                Name = name,
+                Age = age
+            };
+
+            // Add the person to the in-memory database
+            _context.TodoItems.Add(person);
+            _context.SaveChanges();
+
+            // Return a success response
+            return Ok("Person created successfully.");
+        }
+    }
+
+    public class stageContext : context
+    {
+        public DbSet<Person> TodoItems { get; set; }
+
+        public stageContext(contextOptions<stageContext> options)
+            : base(options)
+        {
+        }
+    }
+
+    public class Person
+    {
+        public int Id { get; set; }
+
+        [Required]
+        public string Name { get; set; }
+
+        [Range(1, 150)]
+        public int Age { get; set; }
+    }
+
+    public class PersonDto
+    {
+        public string Name { get; set; }
+        public int Age { get; set; }
+    }
+}

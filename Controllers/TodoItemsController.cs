@@ -83,18 +83,35 @@ namespace api_stage2.Controllers
         // POST: api/TodoItems
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<stageItem>> PoststageItem(stageItem stageItem)
+        public IActionResult CreatePerson(PersonDto personDto)
         {
-          if (_context.TodoItems == null)
-          {
-              return Problem("Entity set 'stageContext.TodoItems'  is null.");
-          }
-          _context.TodoItems.Add(stageItem);
-          await _context.SaveChangesAsync();
+            // Extract the relevant information
+            string name = personDto.Name;
+            int age = personDto.Age;
 
-          //return CreatedAtAction("GetTodoItem", new { id = todoItem.Id }, todoItem);
-        return CreatedAtAction(nameof(GetstageItem), new { id = stageItem.Id }, stageItem);
+            // Perform some validation on the data (optional)
+            if (string.IsNullOrEmpty(name) || age <= 0)
+            {
+                return BadRequest("Name and age are required fields.");
+            }
+
+            // Create a new person object
+            stageItem person = new stageItem
+            {
+                Name = name,
+                Age = age
+            };
+
+            // Add the person to the in-memory database
+            _context.TodoItems.Add(person);
+            _context.SaveChanges();
+
+            // Return a success response
+            return Ok("Person created successfully.");
         }
+    
+
+   
 
         // DELETE: api/TodoItems/5
         [HttpDelete("{id}")]
